@@ -1,6 +1,6 @@
 import { ServiceItem, ReputationResult, RiskResult, BudgetPolicy, RouterSelectionResult, AgentRun, TransactionRecord, SecurityEventRecord } from '@trustx/shared';
 
-const API_BASE = '/api';
+const API_BASE = 'https://trustx402.onrender.com/api';
 
 export async function fetchHealth() {
   const res = await fetch(`${API_BASE}/health`);
