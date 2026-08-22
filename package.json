@@ -1,0 +1,26 @@
+{
+  "name": "trustx-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TRUSTX - Autonomous Agent Trust & Payment Gateway",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build:server": "npm run build --workspace=server",
+    "build:client": "npm run build --workspace=client",
+    "build": "npm run build --workspace=shared && npm run build --workspace=server && npm run build --workspace=client",
+    "test": "npm run test --workspace=server",
+    "verify-x402": "npm run verify-x402 --workspace=server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^10.1.0",
+    "typescript": "^5.4.5"
+  }
+}

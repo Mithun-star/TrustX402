@@ -1,0 +1,37 @@
+{
+  "name": "@trustx/server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/app.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "cross-env AUTO_START=true tsx watch src/app.ts",
+    "start": "cross-env AUTO_START=true node dist/app.js",
+    "test": "node --test dist/tests/**/*.test.js",
+    "test:e2e": "tsx src/scripts/runE2eTest.ts",
+    "verify-prechecks": "tsx src/scripts/verifyPrechecks.ts",
+    "verify-x402": "tsx src/scripts/verifyX402Flow.ts"
+  },
+  "dependencies": {
+    "@trustx/shared": "*",
+    "@x402/avm": "^2.23.0",
+    "@x402/core": "^2.23.0",
+    "@x402/express": "^2.23.0",
+    "@x402/fetch": "^2.23.0",
+    "algosdk": "^3.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "mongodb-memory-server": "^9.2.0",
+    "mongoose": "^8.4.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.2",
+    "tsx": "^4.15.2",
+    "typescript": "^5.4.5"
+  }
+}
