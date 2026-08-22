@@ -18,6 +18,10 @@
     "test": "npm run test --workspace=server",
     "verify-x402": "npm run verify-x402 --workspace=server"
   },
+  "dependencies": {
+    "@types/node": "^20.14.2",
+    "typescript": "^5.4.5"
+  },
   "devDependencies": {
     "@types/node": "^20.14.2",
     "concurrently": "^8.2.2",
