@@ -42,7 +42,7 @@ export async function startServer(): Promise<Server | null> {
   await seedServiceRegistry();
 
   return new Promise((resolve) => {
-    const s = app.listen(env.PORT, () => {
+    const s = app.listen(env.PORT, '0.0.0.0', () => {
       console.log(`====================================================`);
       console.log(`🚀 TRUSTX Gateway Server is running!`);
       console.log(`📡 URL: http://localhost:${env.PORT}`);
