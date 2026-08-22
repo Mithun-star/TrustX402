@@ -19,6 +19,7 @@
     "verify-x402": "npm run verify-x402 --workspace=server"
   },
   "devDependencies": {
+    "@types/node": "^20.14.2",
     "concurrently": "^8.2.2",
     "cross-env": "^10.1.0",
     "typescript": "^5.4.5"
