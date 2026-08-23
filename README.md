@@ -6,7 +6,7 @@
 
 ## Overview
 
-**TRUSTX** is an intelligent trust, security risk, budget policy, and payment-routing layer built specifically for autonomous AI agents consuming machine-payable web APIs.
+TRUSTX is an AI-agent trust, security, budget, and payment-routing gateway for autonomous agents consuming machine-payable web APIs. Before an agent spends money, TRUSTX evaluates the service, checks security risks, enforces financial policies, selects the optimal provider, and executes x402 payment settlement
 
 As AI agents increasingly gain authority to invoke external tools and pay per API call, they should not spend funds blindly. Before executing an on-chain transaction over the **x402 protocol**, TRUSTX evaluates service trust metrics, inspects security risk indicators, enforces agent budget constraints, and dynamically routes payment to the optimal provider.
 
@@ -62,22 +62,54 @@ flowchart TD
 
 ---
 
-## Technology Stack (MERN)
+Technology Stack
 
-- **MongoDB / Mongoose**: Stores service catalog metadata, agent run timelines, security event logs, and settlement transactions. Includes zero-config fallback to `mongodb-memory-server` for local development.
-- **Express.js & Node.js**: REST API server hosting `@x402/express` middleware and TRUSTX engine modules.
-- **React 18 & Vite**: Developer dashboard with live timeline visualizers, security test controls, budget controls, and transaction history.
-- **TypeScript**: Shared type definitions across client and server.
-- **Tailwind CSS & Lucide Icons**: Enterprise-grade UI design.
-- **Blockchain**: Algorand Testnet via `@x402/avm` and `algosdk`.
+Frontend
+React 18 & Vite: Developer dashboard with live execution timelines, security controls, budget controls, and transaction history.
+Tailwind CSS & Lucide Icons: Enterprise-grade responsive UI.
+TypeScript: Shared type definitions across client and server.
 
----
+Backend
+Node.js & Express.js: REST API server hosting @x402/express middleware and TRUSTX engine modules.
+MongoDB / Mongoose: Stores service catalog metadata, agent run timelines, security events, and settlement transactions.
+In-memory fallback: Allows local development when MongoDB is unavailable.
+
+AI / Agent Layer
+AI Agent Workflow: Orchestrates the complete autonomous execution process from user request understanding to service selection, security evaluation, budget validation, payment, and result synthesis.
+LLM Integration: AI model integration can be configured through AI_API_KEY for intelligent request processing and agent capabilities.
+AIAgentService: Backend service responsible for orchestrating the agent workflow.
+
+Trust & Governance
+Reputation Engine: Generates transparent 0–100 TRUSTX service trust scores.
+Risk Engine: Detects security and trust risks before payment.
+Budget Policy Engine: Enforces spending limits and financial policies.
+Payment Router: Selects the optimal service using trust, price, latency, and reliability.
+
+Payments & Blockchain
+x402 Protocol: HTTP-native payment protocol using HTTP 402 Payment Required.
+Algorand Testnet: Blockchain settlement network.
+USDC ASA 10458941: Stable payment asset.
+@x402/avm & algosdk: Algorand x402 payment signing and blockchain integration.
+GoPlausible Facilitator: Verifies and settles x402 payments.
+
+Deployment
+Vercel: Frontend deployment.
+Environment Variables: Secure configuration of backend credentials and payment parameters.
 
 ## Core Engine Modules
 
 ### 1. Reputation Engine
-Calculates a transparent service trust score (0–100):
-$$\text{Score} = 30\% \text{ (Success Rate)} + 25\% \text{ (Tx History Log)} + 20\% \text{ (Availability)} + 15\% \text{ (Latency)} + 10\% \text{ (User Feedback)}$$
+
+Calculates a transparent TRUSTX-generated service trust score from 0–100 using:
+
+Trust Score =
+(0.30 × Success Rate)
++ (0.25 × Transaction History)
++ (0.20 × Availability)
++ (0.15 × Latency Performance)
++ (0.10 × User Feedback)
+
+The dashboard exposes the individual components so the score is explainable rather than a black-box rating.
 *Clearly labeled as "TRUSTX-generated reputation score".*
 
 ### 2. Risk Engine
@@ -99,6 +131,38 @@ Dynamic multi-attribute decision matrix:
 $$\text{Composite Score} = (0.35 \times \text{Trust}) + (0.25 \times \text{PriceScore}) + (0.20 \times \text{LatencyScore}) + (0.20 \times \text{Reliability})$$
 
 ---
+## AI Agent Workflow
+
+TRUSTX includes an autonomous agent workflow that coordinates the
+different TRUSTX engines before executing a paid API request.
+
+Workflow:
+
+User Request
+    ↓
+Request Understanding
+    ↓
+Service Discovery
+    ↓
+Reputation Evaluation
+    ↓
+Optimal Service Selection
+    ↓
+Security & Risk Evaluation
+    ↓
+Budget Policy Evaluation
+    ↓
+x402 Payment Request
+    ↓
+Payment Signing
+    ↓
+Facilitator Verification & Settlement
+    ↓
+Research Result Synthesis
+
+The agent workflow is implemented in AIAgentService and coordinates
+the Reputation Engine, Risk Engine, Budget Engine, Payment Router,
+and x402 payment client.
 
 ## Quick Start & Local Setup
 
@@ -141,10 +205,25 @@ npm run dev
 ## Testing & Verification
 
 ### Run Unit Tests
-```bash
+
 npm test
-```
-Runs unit tests for Reputation Engine, Risk Engine, Budget Policy, and Payment Router.
+
+Runs unit tests for the Reputation Engine, Risk Engine,
+Budget Policy Engine, and Payment Router.
+
+### Run x402 End-to-End Verification
+
+npm run verify-x402 --workspace=server
+
+Executes the complete Algorand x402 verification flow:
+
+HTTP 402 Payment Required
+→ Payment Challenge Decoding
+→ AVM Payment Signing
+→ GoPlausible Verification
+→ GoPlausible Settlement
+→ Real Algorand Testnet Transaction ID
+→ Explorer Verification
 
 ### Run End-to-End Test Suite
 ```bash
