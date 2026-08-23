@@ -168,6 +168,4 @@ Executes complete safe demo workflow (HTTP 402 -> AVM Sign -> Facilitator Settle
 
 ---
 
-## Hackathon Requirement Audit
 
-See [docs/HACKATHON-COMPLIANCE.md](docs/HACKATHON-COMPLIANCE.md) for the complete compliance breakdown verifying all 20 mandatory hackathon rules.
