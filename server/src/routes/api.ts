@@ -166,44 +166,63 @@ apiRouter.get('/transactions/:id', async (req: Request, res: Response) => {
 });
 
 // Mandatory x402 Protected Research Endpoint ($0.03 USDC on Algorand Testnet)
+// Mandatory x402 Protected Research Endpoint ($0.03 USDC on Algorand Testnet)
 apiRouter.post(
   '/research',
+
   (req: Request, res: Response, next: NextFunction) => {
-    const hasSig = req.headers['payment-signature'] ? 'PRESENT' : 'MISSING';
-    const hasXPayment = req.headers['x-payment'] ? 'PRESENT' : 'MISSING';
-    console.log(`📥 [Server Middleware] Incoming POST /api/research request.`);
-    console.log(`   PAYMENT-SIGNATURE: ${hasSig}, X-PAYMENT: ${hasXPayment}`);
+    const hasSig = req.headers['payment-signature']
+      ? 'PRESENT'
+      : 'MISSING';
+
+    const hasXPayment = req.headers['x-payment']
+      ? 'PRESENT'
+      : 'MISSING';
+
+    console.log(
+      `📥 [Server Middleware] Incoming POST /api/research request.`
+    );
+
+    console.log(
+      `   PAYMENT-SIGNATURE: ${hasSig}, X-PAYMENT: ${hasXPayment}`
+    );
+
     next();
   },
+
   x402ExpressMiddleware,
+
   (req: Request, res: Response) => {
-    const query = req.body?.query || 'EV battery recycling technologies';
+    const query =
+      req.body?.query ||
+      'EV battery recycling technologies';
 
-    const paymentInfo = (req as any).payment || {
-      protocol: 'x402',
-      network: 'Algorand Testnet',
-      asset: 'USDC',
-      transactionId: (req.headers['x-payment-txid'] as string) || (req.headers['authorization'] as string) || `algorand-tx-${Date.now()}`,
-    };
+    console.log(
+      `🎉 [Server Route] Handler executed successfully. Returning 200 JSON payload.`
+    );
 
-    console.log(`🎉 [Server Route] Handler executed successfully. Returning 200 JSON payload.`);
     res.json({
       success: true,
+
       result: {
         query,
+
         summary: `Comprehensive research summary on '${query}': Closed-loop hydrometallurgical recycling achieves 95%+ recovery rate of Lithium, Nickel, and Cobalt with low carbon footprint. Direct recycling and automated disassembly systems are rapidly advancing for commercial deployment.`,
+
         keyFindings: [
           'Hydrometallurgical extraction recovers 95%+ of battery-grade Cathode Active Materials (CAM).',
+
           'Direct cathode-to-cathode reconditioning reduces energy consumption by 40% compared to traditional smelting.',
+
           'Robotic disassembly and AI vision systems reduce hazardous manual handling by 80%.',
         ],
+
         sources: [
           'Journal of Cleaner Production (2025)',
           'Global EV Recycling Market Intelligence Report',
           'Algorand Decoupled Circular Economy Consortium',
         ],
       },
-      payment: paymentInfo,
     });
   }
 );

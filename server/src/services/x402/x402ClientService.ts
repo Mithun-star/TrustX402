@@ -142,6 +142,47 @@ export async function executeX402PaidRequest(
   }
 
   const jsonResult = await response.json();
-  console.log(`✅ [x402 Client] Paid request succeeded! TxID: ${jsonResult.payment?.transactionId || 'N/A'}`);
-  return jsonResult;
+
+const paymentResponseHeader =
+  response.headers.get('PAYMENT-RESPONSE') ||
+  response.headers.get('payment-response');
+
+let settlement: any = undefined;
+
+if (paymentResponseHeader) {
+  try {
+    settlement = JSON.parse(
+      Buffer.from(paymentResponseHeader, 'base64').toString('utf-8')
+    );
+
+    console.log(
+      '✅ [x402 Client] Settlement response:',
+      JSON.stringify(settlement, null, 2)
+    );
+  } catch (err: any) {
+    throw new Error(
+      `Invalid PAYMENT-RESPONSE header: ${err.message}`
+    );
+  }
+}
+
+if (!settlement?.success || !settlement?.transaction) {
+  throw new Error(
+    'x402 payment succeeded but no verified Algorand settlement transaction ID was returned.'
+  );
+}
+
+jsonResult.payment = {
+  protocol: 'x402',
+  network: settlement.network || 'Algorand Testnet',
+  asset: 'USDC',
+  transactionId: settlement.transaction,
+  payer: settlement.payer,
+};
+
+console.log(
+  `✅ [x402 Client] Paid request succeeded! TxID: ${settlement.transaction}`
+);
+
+return jsonResult;
 }

@@ -147,9 +147,16 @@ export async function runAgentWorkflow(
       body: { query: userRequest },
     });
 
-    transactionId = paidResponse.payment?.transactionId || `algorand-tx-${Date.now()}`;
-    paymentStatus = 'settled';
-    recordSpending(selectedService.pricePerRequest);
+    transactionId = paidResponse.payment?.transactionId;
+
+if (!transactionId) {
+  throw new Error(
+    'x402 request succeeded, but no Algorand transaction ID was returned. Settlement cannot be verified.'
+  );
+}
+
+paymentStatus = 'settled';
+recordSpending(selectedService.pricePerRequest);
 
     completeStep(9, {
       protocol: paidResponse.payment?.protocol || 'x402',

@@ -107,18 +107,57 @@ async function main() {
 
     const result = await paidRes.json();
 
-    // 11. Extract Real Blockchain Transaction ID
-    const txId = result.payment?.transactionId;
-    console.log(`\n[11/11] Final /api/research response received:`);
-    console.log(`       TxID: ${txId}`);
+// 11. Extract REAL Blockchain Transaction ID
+// 11. Extract REAL Blockchain Transaction ID
+console.log(`\n[11/11] Final /api/research response received:`);
 
-    if (!txId || txId.startsWith('mock-') || txId.includes('fake')) {
-      throw new Error(`Invalid or mock transaction ID received: ${txId}`);
-    }
-    console.log(`       ✅ REAL Algorand Testnet transaction verified.`);
+const paymentResponseHeader =
+  paidRes.headers.get('PAYMENT-RESPONSE') ||
+  paidRes.headers.get('payment-response');
 
-    const loraUrl = `https://lora.algokit.io/testnet/transaction/${txId}`;
-    console.log(`       🔗 Lora Explorer URL: ${loraUrl}`);
+if (!paymentResponseHeader) {
+  throw new Error(
+    'PAYMENT-RESPONSE header missing from successful x402 response.'
+  );
+}
+
+let paymentResponse: any;
+
+try {
+  paymentResponse = JSON.parse(
+    Buffer.from(paymentResponseHeader, 'base64').toString('utf-8')
+  );
+} catch (err: any) {
+  throw new Error(
+    `Could not decode PAYMENT-RESPONSE header: ${err.message}`
+  );
+}
+
+console.log(
+  `       Settlement Response:`,
+  JSON.stringify(paymentResponse, null, 2)
+);
+
+const txId = paymentResponse?.transaction;
+
+console.log(`       TxID: ${txId}`);
+
+if (
+  !txId ||
+  txId.startsWith('mock-') ||
+  txId.includes('fake')
+) {
+  throw new Error(
+    `Invalid or mock transaction ID received: ${txId}`
+  );
+}
+
+console.log(`       ✅ REAL Algorand Testnet transaction verified.`);
+
+const loraUrl =
+  `https://lora.algokit.io/testnet/transaction/${txId}`;
+
+console.log(`       🔗 Lora Explorer URL: ${loraUrl}`);
 
     console.log('\n===========================================================');
     console.log('✅ ALL VERIFICATION CHECKS PASSED SUCCESSFULLY!');
