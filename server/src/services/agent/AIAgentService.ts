@@ -134,18 +134,32 @@ export async function runAgentWorkflow(
     }
 
     // Step 7: Executing Real x402 Paid Endpoint Call
-    addStep('Executing x402 Paid Endpoint Request', `Calling ${selectedService.endpoint} via x402 protocol ($${selectedService.pricePerRequest} USDC)...`);
-    paymentStatus = 'pending';
+   // Step 7: Execute the real x402 protected endpoint
+addStep(
+  'Executing x402 Paid Endpoint Request',
+  `Calling ${selectedService.endpoint} via x402 protocol ($${selectedService.pricePerRequest} USDC)...`
+);
 
-    addStep('Handling HTTP 402 Challenge & Payment Signing', 'Server returned 402 Payment Required. Client signing payment challenge using Algorand Testnet AVM signer...');
-    paymentStatus = 'signed';
-    completeStep(8);
+paymentStatus = 'pending';
 
-    addStep('Facilitator Settlement & Algorand Verification', 'Facilitator verifying payment and settling on Algorand Testnet...');
-    const paidResponse = await executeX402PaidRequest(selectedService.endpoint, {
-      method: 'POST',
-      body: { query: userRequest },
-    });
+const paidResponse = await executeX402PaidRequest(selectedService.endpoint, {
+  method: 'POST',
+  body: { query: userRequest },
+});
+
+paymentStatus = 'settled';
+
+addStep(
+  'x402 Payment & Algorand Settlement',
+  'HTTP 402 challenge was automatically handled by the x402 client. Payment was verified and settled on Algorand Testnet.'
+);
+
+completeStep(7, {
+  protocol: paidResponse.payment?.protocol || 'x402',
+  network: paidResponse.payment?.network || 'Algorand Testnet',
+  asset: paidResponse.payment?.asset || 'USDC',
+  transactionId: paidResponse.payment?.transactionId,
+});
 
     transactionId = paidResponse.payment?.transactionId;
 

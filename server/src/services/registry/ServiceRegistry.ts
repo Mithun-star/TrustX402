@@ -3,7 +3,7 @@ import { ServiceModel } from '../../models/Service.js';
 import { ServiceItem } from '@trustx/shared';
 import { env } from '../../config/env.js';
 
-const PORT = env.PORT || 5000;
+const PORT = env.PUBLIC_API_URL;
 
 export const INITIAL_SERVICES: ServiceItem[] = [
   {
@@ -27,7 +27,7 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     _id: '60f766740a74b48f2a02a2c2',
     name: 'DeepSearch Pro (Service A)',
     description: 'Comprehensive academic research engine with high reliability.',
-    endpoint: `http://127.0.0.1:${PORT}/api/research`,
+    endpoint: `${PORT}/api/research`,
     category: 'research',
     pricePerRequest: 0.05, // $0.05 USDC
     currency: 'USDC',
@@ -44,7 +44,7 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     _id: '60f766740a74b48f2a02a2c3',
     name: 'QuickResearch Lite (Service B)',
     description: 'Economy research provider with moderate latency and acceptable accuracy.',
-    endpoint: `http://127.0.0.1:${PORT}/api/research`,
+    endpoint: `${PORT}/api/research`,
     category: 'research',
     pricePerRequest: 0.02, // $0.02 USDC
     currency: 'USDC',
@@ -61,7 +61,7 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     _id: '60f766740a74b48f2a02a2c4',
     name: 'Unverified Shadow Data (Unsafe Service X)',
     description: 'High-risk external endpoint flagged for suspicious instruction patterns and low reputation.',
-    endpoint: `http://127.0.0.1:${PORT}/api/research`,
+    endpoint: `${PORT}/api/research`,
     category: 'research',
     pricePerRequest: 0.80, // Exceeds budget limit
     currency: 'USDC',
