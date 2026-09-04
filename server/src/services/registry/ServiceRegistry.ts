@@ -145,11 +145,14 @@ let inMemoryServices: ServiceItem[] = [...INITIAL_SERVICES];
 export async function seedServiceRegistry(): Promise<void> {
   if (mongoose.connection.readyState === 1) {
     try {
-      const count = await ServiceModel.countDocuments();
-      if (count === 0) {
-        console.log('🌱 Seeding Service Registry with initial services in MongoDB...');
-        await ServiceModel.insertMany(INITIAL_SERVICES);
-        console.log('✅ Service Registry seeded successfully.');
+      // Upsert all initial services to ensure existing MongoDB records are synchronized with INITIAL_SERVICES
+      for (const service of INITIAL_SERVICES) {
+        const { _id, ...updateData } = service;
+        await ServiceModel.updateOne(
+          { _id: new mongoose.Types.ObjectId(_id) },
+          { $set: updateData },
+          { upsert: true }
+        );
       }
     } catch (e: any) {
       console.warn('⚠️ Service seeding using fallback in-memory store:', e.message);

@@ -133,6 +133,15 @@ export async function executeX402PaidRequest(
     requestOptions.body = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
   }
 
+  console.log(`[x402 Diagnostic] Service endpoint: ${url}`);
+  console.log(`[x402 Diagnostic] Network: ${env.X402_NETWORK}`);
+  console.log(`[x402 Diagnostic] Asset ID: ${env.USDC_ASSET_ID}`);
+  console.log(`[x402 Diagnostic] Amount: 30000 base units ($0.03 USDC)`);
+  console.log(`[x402 Diagnostic] Receiver: ${env.PAYMENT_RECEIVER_ADDRESS}`);
+  console.log(`[x402 Diagnostic] Payer address: ${env.PAYMENT_PAYER_ADDRESS}`);
+  console.log(`[x402 Diagnostic] Facilitator: ${env.FACILITATOR_URL}`);
+  console.log(`[x402 Diagnostic] Production/local mode: ${env.PUBLIC_API_URL ? 'PRODUCTION (' + env.PUBLIC_API_URL + ')' : 'LOCAL (http://127.0.0.1:' + env.PORT + ')'}`);
+
   console.log(`🚀 [x402 Client] Dispatching request via @x402/fetch to ${url}...`);
   const response = await fetchWithPayment(url, requestOptions);
 
