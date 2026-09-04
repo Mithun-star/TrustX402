@@ -1,4 +1,5 @@
 import { ServiceItem, RouterWeights, RouterSelectionResult } from '@trustx/shared';
+import { isEndpointValid } from '../registry/ServiceRegistry.js';
 
 export const DEFAULT_ROUTER_WEIGHTS: RouterWeights = {
   trustWeight: 0.35,
@@ -15,12 +16,19 @@ export function selectOptimalService(
     throw new Error('No candidate services provided for routing selection.');
   }
 
+  // Filter out any candidates whose endpoints are invalid or unreachable
+  const validCandidates = candidates.filter((service) => isEndpointValid(service.endpoint));
+
+  if (validCandidates.length === 0) {
+    throw new Error('No candidate services with valid, reachable endpoints were found for routing.');
+  }
+
   const weights: RouterWeights = {
     ...DEFAULT_ROUTER_WEIGHTS,
     ...customWeights,
   };
 
-  const rankings = candidates.map((service) => {
+  const rankings = validCandidates.map((service) => {
     const trust = service.trustScore ?? 50;
     const price = service.pricePerRequest ?? 0.05;
     const latency = service.averageLatencyMs ?? 500;

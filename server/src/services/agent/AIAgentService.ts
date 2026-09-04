@@ -11,6 +11,8 @@ import { createTransactionRecord } from '../transactions/TransactionService.js';
 import { createSecurityEvent } from '../security/SecurityEventService.js';
 import { env } from '../../config/env.js';
 
+import { detectCapability } from './CapabilityDetector.js';
+
 const inMemoryRuns: AgentRun[] = [];
 
 interface IntentAnalysis {
@@ -78,39 +80,14 @@ async function analyzeUserIntent(
         }
       }
     } catch (e: any) {
-      // Fallback to rule-based parser on network or API key error
+      // Fallback to CapabilityDetector on network or API key error
     }
   }
 
-  // Rule-based Natural Language Understanding (NLU) & Intent Categorization
-  let capability = 'research';
-  let intent = 'General Research & Analysis';
-
-  if (reqLower.includes('weather') || reqLower.includes('forecast') || reqLower.includes('climate')) {
-    capability = 'weather';
-    intent = 'Real-time Weather & Climate Intelligence';
-  } else if (reqLower.includes('data') || reqLower.includes('dataset') || reqLower.includes('analytics') || reqLower.includes('analyze')) {
-    capability = 'data-analysis';
-    intent = 'Data Processing & Advanced Analytics';
-  } else if (reqLower.includes('code') || reqLower.includes('coding') || reqLower.includes('developer') || reqLower.includes('programming')) {
-    capability = 'coding';
-    intent = 'AI Code Generation & Engineering Tools';
-  } else if (reqLower.includes('architecture') || reqLower.includes('database') || reqLower.includes('compare mongodb') || reqLower.includes('cloud')) {
-    capability = 'architecture';
-    intent = 'System Architecture & Database Comparison';
-  } else if (reqLower.includes('security') || reqLower.includes('cybersecurity') || reqLower.includes('vulnerability')) {
-    capability = 'cybersecurity';
-    intent = 'Cybersecurity Audit & Threat Intelligence';
-  } else if (reqLower.includes('image') || reqLower.includes('generate image') || reqLower.includes('vision')) {
-    capability = 'image-generation';
-    intent = 'Generative AI Media & Computer Vision';
-  } else if (reqLower.includes('market') || reqLower.includes('company') || reqLower.includes('startup') || reqLower.includes('cost')) {
-    capability = 'market-intelligence';
-    intent = 'Market Intelligence & Commercial Analysis';
-  } else if (reqLower.includes('battery') || reqLower.includes('ev') || reqLower.includes('recycling')) {
-    capability = 'ev_battery_research';
-    intent = 'EV Battery Systems & Clean Energy Technology';
-  }
+  // Deterministic NLU via CapabilityDetector
+  const detected = detectCapability(userRequest);
+  let capability = detected.capability;
+  let intent = detected.reason;
 
   if (isFollowUp && history && history.length > 0) {
     const lastTopic = history[history.length - 1].content;

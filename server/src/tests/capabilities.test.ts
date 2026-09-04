@@ -5,9 +5,15 @@ import { findServicesByCapability, registerNewService } from '../services/regist
 import { createPaymentSession, updatePaymentSessionStatus, getPaymentSession } from '../services/payment/PaymentSessionService.js';
 
 describe('Capability Detection & Payment Session Unit Tests', () => {
-  test('Research request maps to research capability', () => {
-    const res = detectCapability('Research the latest EV battery recycling technologies');
-    assert.strictEqual(res.capability, 'research');
+  test('EV battery recycling request maps to ev_battery_research capability', () => {
+    const res = detectCapability('Research the best technologies for EV battery recycling.');
+    assert.strictEqual(res.capability, 'ev_battery_research');
+    assert.ok(res.confidence >= 0.7);
+  });
+
+  test('Sentiment analysis request maps to sentiment_analysis capability', () => {
+    const res = detectCapability('Analyze sentiment of these customer reviews');
+    assert.strictEqual(res.capability, 'sentiment_analysis');
     assert.ok(res.confidence >= 0.7);
   });
 
@@ -18,7 +24,7 @@ describe('Capability Detection & Payment Session Unit Tests', () => {
   });
 
   test('Data analysis request maps to data_analysis capability', () => {
-    const res = detectCapability('Analyze this CSV and identify anomalies');
+    const res = detectCapability('Analyze this CSV dataset for anomalies');
     assert.strictEqual(res.capability, 'data_analysis');
     assert.ok(res.confidence >= 0.7);
   });
@@ -29,9 +35,26 @@ describe('Capability Detection & Payment Session Unit Tests', () => {
     assert.ok(res.confidence >= 0.7);
   });
 
-  test('Service discovery returns matching services for capability', async () => {
-    const services = await findServicesByCapability('research');
-    assert.ok(services.length > 0, 'Must find at least one research service');
+  test('Service discovery returns only ev_battery_research providers for EV battery queries', async () => {
+    const services = await findServicesByCapability('ev_battery_research');
+    assert.ok(services.length > 0, 'Must find at least one EV battery research service');
+    assert.ok(
+      services.every((s) => !s.name.includes('Sentiment')),
+      'EV battery research candidate services MUST NOT contain Sentiment Analytics API'
+    );
+  });
+
+  test('Service discovery returns Sentiment Analytics Pro for sentiment queries', async () => {
+    const services = await findServicesByCapability('sentiment_analysis');
+    assert.ok(services.length > 0, 'Must find sentiment service');
+    assert.ok(
+      services.some((s) => s.name.includes('Sentiment')),
+      'Sentiment discovery must return Sentiment Analytics Pro'
+    );
+    assert.ok(
+      services.every((s) => !s.name.includes('Research Core')),
+      'Sentiment candidate services MUST NOT contain EV research providers'
+    );
   });
 
   test('Registering a new service allows dynamic capability discovery', async () => {

@@ -52,6 +52,7 @@ describe('TRUSTX Engine Unit Tests', () => {
     const candidateA = {
       _id: '1',
       name: 'Service A',
+      endpoint: 'http://127.0.0.1:5000/api/research',
       trustScore: 95,
       pricePerRequest: 0.05,
       averageLatencyMs: 300,
@@ -61,6 +62,7 @@ describe('TRUSTX Engine Unit Tests', () => {
     const candidateC = {
       _id: '2',
       name: 'Service C',
+      endpoint: 'http://127.0.0.1:5000/api/research',
       trustScore: 98,
       pricePerRequest: 0.03,
       averageLatencyMs: 250,

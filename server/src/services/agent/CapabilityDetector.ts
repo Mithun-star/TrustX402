@@ -9,10 +9,22 @@ interface CapabilityRule {
 
 const CAPABILITY_RULES: CapabilityRule[] = [
   {
+    capability: 'ev_battery_research',
+    keywords: ['ev', 'battery', 'recycling', 'ev battery', 'lithium', 'clean energy', 'cathode', 'hydrometallurgical', 'energy storage'],
+    patterns: [/ev\s+battery/i, /battery\s+recycling/i, /lithium.*recycling/i, /battery/i, /recycling/i],
+    defaultReason: 'The user prompt requests EV battery systems, lithium recycling, clean energy, or battery technology research.',
+  },
+  {
     capability: 'research',
-    keywords: ['research', 'investigate', 'study', 'battery', 'ev', 'technology', 'market', 'trends', 'finding', 'state-of-the-art'],
-    patterns: [/research/i, /investigate/i, /study/i, /battery/i, /recycling/i, /technology/i, /trends/i],
+    keywords: ['research', 'investigate', 'study', 'technology', 'market', 'trends', 'finding', 'state-of-the-art', 'paper', 'journal'],
+    patterns: [/research/i, /investigate/i, /study/i, /trends/i],
     defaultReason: 'The user request calls for domain research, technical investigation, or trend analysis.',
+  },
+  {
+    capability: 'sentiment_analysis',
+    keywords: ['sentiment', 'reviews', 'customer feedback', 'opinion', 'satisfaction', 'ratings', 'nps', 'feedback'],
+    patterns: [/sentiment/i, /customer\s+reviews/i, /opinion/i, /feedback/i],
+    defaultReason: 'The request requires NLP sentiment analysis and customer feedback categorization.',
   },
   {
     capability: 'translation',
@@ -22,7 +34,7 @@ const CAPABILITY_RULES: CapabilityRule[] = [
   },
   {
     capability: 'data_analysis',
-    keywords: ['csv', 'data', 'analyze', 'analysis', 'anomalies', 'dataset', 'statistics', 'dataframe', 'metrics', 'trends'],
+    keywords: ['csv', 'data', 'analyze', 'analysis', 'anomalies', 'dataset', 'statistics', 'dataframe', 'metrics'],
     patterns: [/csv/i, /analyze\s+data/i, /data\s+analysis/i, /anomaly/i, /anomalies/i, /statistics/i],
     defaultReason: 'The request asks for data processing, CSV analysis, statistical inspection, or anomaly detection.',
   },
@@ -49,12 +61,6 @@ const CAPABILITY_RULES: CapabilityRule[] = [
     keywords: ['convert', 'pdf', 'document', 'docx', 'markdown', 'format', 'export pdf'],
     patterns: [/convert.*pdf/i, /document\s+conversion/i, /export\s+to\s+pdf/i, /format\s+document/i],
     defaultReason: 'The request specifies file format conversion or document transformation.',
-  },
-  {
-    capability: 'sentiment_analysis',
-    keywords: ['sentiment', 'reviews', 'customer feedback', 'opinion', 'satisfaction', 'ratings', 'nps'],
-    patterns: [/sentiment/i, /customer\s+reviews/i, /opinion/i, /feedback\s+analysis/i],
-    defaultReason: 'The request requires sentiment analysis and customer feedback categorization.',
   },
   {
     capability: 'academic_search',

@@ -10,19 +10,45 @@ export function getPublicApiUrl(): string {
   return `http://127.0.0.1:${env.PORT || 5000}`;
 }
 
+export function isEndpointValid(endpoint?: string): boolean {
+  if (!endpoint || typeof endpoint !== 'string' || endpoint.trim() === '') {
+    return false;
+  }
+  const ep = endpoint.trim();
+  if (ep.includes('10000') || ep.includes('localhost:10000')) {
+    return false;
+  }
+  try {
+    const url = new URL(ep);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch (e) {
+    return false;
+  }
+}
+
 export function normalizeEndpoint(endpoint?: string): string {
   const base = getPublicApiUrl();
   if (!endpoint || endpoint.trim() === '') {
     return `${base}/api/research`;
   }
   let ep = endpoint.trim();
+
+  if (ep.includes('10000')) {
+    if (ep.includes('sentiment')) {
+      return `${base}/api/sentiment`;
+    }
+    return `${base}/api/research`;
+  }
+
   if (ep.startsWith('/')) {
     return `${base}${ep}`;
   }
+
   if (ep.match(/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?/i)) {
     const urlPath = ep.replace(/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?/i, '');
     return `${base}${urlPath || '/api/research'}`;
   }
+
   return ep;
 }
 
@@ -42,7 +68,7 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     availability: 99.9,
     transactionCount: 1842,
     status: 'active',
-    capabilities: ['ev_battery_research', 'materials_science', 'market_intelligence'],
+    capabilities: ['research', 'ev_battery_research', 'materials_science'],
   },
   {
     _id: '60f766740a74b48f2a02a2c2',
@@ -59,7 +85,7 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     availability: 98.5,
     transactionCount: 920,
     status: 'active',
-    capabilities: ['ev_battery_research', 'patent_analysis'],
+    capabilities: ['research', 'ev_battery_research', 'patent_analysis'],
   },
   {
     _id: '60f766740a74b48f2a02a2c3',
@@ -76,7 +102,24 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     availability: 91.0,
     transactionCount: 410,
     status: 'active',
-    capabilities: ['ev_battery_research', 'web_scraping'],
+    capabilities: ['research', 'ev_battery_research', 'web_scraping'],
+  },
+  {
+    _id: '60f766740a74b48f2a02a2c5',
+    name: 'Sentiment Analytics Pro',
+    description: 'Real-time NLP sentiment analysis engine for customer reviews, feedback, and opinion mining.',
+    endpoint: `${getPublicApiUrl()}/api/sentiment`,
+    category: 'sentiment_analysis',
+    pricePerRequest: 0.02, // $0.02 USDC
+    currency: 'USDC',
+    network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
+    trustScore: 91,
+    successRate: 98.0,
+    averageLatencyMs: 190,
+    availability: 99.5,
+    transactionCount: 650,
+    status: 'active',
+    capabilities: ['sentiment_analysis', 'text_analysis'],
   },
   {
     _id: '60f766740a74b48f2a02a2c4',
@@ -93,7 +136,7 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     availability: 65.0,
     transactionCount: 14,
     status: 'degraded',
-    capabilities: ['ev_battery_research', 'unverified_data'],
+    capabilities: ['research', 'ev_battery_research', 'unverified_data'],
   },
 ];
 
@@ -121,7 +164,19 @@ export async function getAllServices(): Promise<ServiceItem[]> {
       const docs = await ServiceModel.find().lean();
       if (docs && docs.length > 0) {
         return docs.map((d: any) => {
-          return { ...d, _id: d._id.toString(), endpoint: normalizeEndpoint(d.endpoint) };
+          let caps = d.capabilities || [];
+          let cat = d.category || 'research';
+          if (d.name && d.name.toLowerCase().includes('sentiment')) {
+            caps = ['sentiment_analysis', 'text_analysis'];
+            cat = 'sentiment_analysis';
+          }
+          return {
+            ...d,
+            _id: d._id.toString(),
+            category: cat,
+            capabilities: caps,
+            endpoint: normalizeEndpoint(d.endpoint),
+          };
         });
       }
     } catch (err) {
@@ -129,7 +184,13 @@ export async function getAllServices(): Promise<ServiceItem[]> {
     }
   }
   return inMemoryServices.map((d) => {
-    return { ...d, endpoint: normalizeEndpoint(d.endpoint) };
+    let caps = d.capabilities || [];
+    let cat = d.category || 'research';
+    if (d.name && d.name.toLowerCase().includes('sentiment')) {
+      caps = ['sentiment_analysis', 'text_analysis'];
+      cat = 'sentiment_analysis';
+    }
+    return { ...d, category: cat, capabilities: caps, endpoint: normalizeEndpoint(d.endpoint) };
   });
 }
 
@@ -141,23 +202,60 @@ export async function getServiceById(id: string): Promise<ServiceItem | null> {
 export async function findServicesByCapability(capability: string): Promise<ServiceItem[]> {
   const all = await getAllServices();
   const capLower = capability.toLowerCase().trim();
-  const keywords = capLower.split(/[\s,_\-+]+/);
 
-  const matched = all.filter((s) => {
-    if (s.status === 'offline') return false;
-    const catMatch = s.category.toLowerCase().includes(capLower);
-    const capMatch = s.capabilities.some((c) =>
-      keywords.some((kw) => c.toLowerCase().includes(kw) || kw.includes(c.toLowerCase()))
-    );
-    const nameMatch = keywords.some((kw) => s.name.toLowerCase().includes(kw));
-    const descMatch = keywords.some((kw) => s.description.toLowerCase().includes(kw));
-    return catMatch || capMatch || nameMatch || descMatch;
+  // 1. Filter only active services with valid reachable endpoints
+  const activeServices = all.filter((s) => s.status !== 'offline' && isEndpointValid(s.endpoint));
+
+  // 2. Strict capability matching
+  const matched = activeServices.filter((s) => {
+    const sCaps = (s.capabilities || []).map((c) => c.toLowerCase().trim());
+    const sCategory = (s.category || '').toLowerCase().trim();
+
+    // Check exact match in capability list or category
+    if (sCaps.includes(capLower) || sCategory === capLower) {
+      return true;
+    }
+
+    // For ev_battery_research or research queries
+    if (capLower === 'ev_battery_research' || capLower === 'research') {
+      return sCaps.some((c) => c.includes('ev_battery') || c === 'research' || c === 'ev_battery_research') || sCategory === 'research';
+    }
+
+    // For sentiment_analysis
+    if (capLower === 'sentiment_analysis' || capLower === 'sentiment') {
+      return sCaps.some((c) => c.includes('sentiment')) || sCategory.includes('sentiment');
+    }
+
+    // Generic sub-word match if non-empty
+    return sCaps.some((c) => c.includes(capLower) || capLower.includes(c));
   });
 
-  if (matched.length > 0) return matched;
+  if (matched.length > 0) {
+    return matched;
+  }
 
-  // Fallback: If no exact capability match, return all active services for multi-attribute router evaluation
-  return all.filter((s) => s.status !== 'offline');
+  // 3. Category fallback if no capability array matched
+  const categoryMatched = activeServices.filter((s) => {
+    const sCategory = (s.category || '').toLowerCase().trim();
+    if (capLower.includes('research') || capLower.includes('battery')) {
+      return sCategory === 'research';
+    }
+    if (capLower.includes('sentiment')) {
+      return sCategory.includes('sentiment');
+    }
+    return false;
+  });
+
+  if (categoryMatched.length > 0) {
+    return categoryMatched;
+  }
+
+  // 4. Safe fallback: return active research services only when capability is research-oriented
+  if (capLower.includes('research') || capLower.includes('battery') || capLower === 'general') {
+    return activeServices.filter((s) => (s.category || '').toLowerCase() === 'research');
+  }
+
+  return activeServices;
 }
 
 export async function registerNewService(serviceData: Partial<ServiceItem>): Promise<ServiceItem> {
