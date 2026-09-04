@@ -46,7 +46,7 @@ export async function getPaymentSession(sessionId: string): Promise<PaymentSessi
   if (!session) return null;
 
   // Check expiration
-  if (new Date() > new Date(session.expiresAt) && session.status === 'payment_required') {
+  if (session.expiresAt && new Date() > new Date(session.expiresAt) && session.status === 'payment_required') {
     session.status = 'failed';
   }
 

@@ -11,7 +11,8 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
-  PORT: parseInt(process.env.PORT || '5000', 10),PUBLIC_API_URL: process.env.PUBLIC_API_URL || `http://127.0.0.1:${process.env.PORT || 5000}`,
+  PORT: parseInt(process.env.PORT || '5000', 10),
+  PUBLIC_API_URL: process.env.PUBLIC_API_URL || '',
   
   MONGODB_URI: process.env.MONGODB_URI || '',
   AI_API_KEY: process.env.AI_API_KEY || '',

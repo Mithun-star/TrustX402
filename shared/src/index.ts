@@ -164,3 +164,53 @@ export interface ResearchApiResponse {
   };
   payment: X402PaymentResult;
 }
+
+export interface CapabilityDetectionResult {
+  capability: string;
+  confidence: number;
+  reason: string;
+  keywordsMatched: string[];
+}
+
+export type PaymentStatus = 'none' | 'pending' | 'signed' | 'settled' | 'blocked' | 'failed' | 'payment_required' | 'cancelled';
+
+export interface PaymentRequirements {
+  protocol?: string;
+  network: string;
+  asset: string;
+  amount: string | number;
+  payTo: string;
+  maxAgeSeconds?: number;
+  extra?: any;
+  x402Version?: number;
+  accepts?: Array<{
+    scheme: string;
+    network: string;
+    amount: string;
+    asset: string;
+    payTo: string;
+    extra?: any;
+  }>;
+}
+
+export interface PaymentSession {
+  sessionId: string;
+  agentRunId?: string;
+  userRequest?: string;
+  capability?: string;
+  selectedService?: ServiceItem;
+  amount: number;
+  currency: string;
+  network?: string;
+  status: PaymentStatus;
+  createdAt: string;
+  expiresAt?: string;
+  updatedAt?: string;
+  paymentRequirements?: PaymentRequirements;
+  riskResult?: RiskResult;
+  budgetCheck?: BudgetCheckResult;
+  reputationReport?: ReputationResult;
+  transactionId?: string;
+  result?: any;
+}
+

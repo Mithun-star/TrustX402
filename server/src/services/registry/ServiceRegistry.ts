@@ -3,14 +3,35 @@ import { ServiceModel } from '../../models/Service.js';
 import { ServiceItem } from '@trustx/shared';
 import { env } from '../../config/env.js';
 
-const PORT = env.PUBLIC_API_URL;
+export function getPublicApiUrl(): string {
+  if (env.PUBLIC_API_URL && env.PUBLIC_API_URL.trim() !== '') {
+    return env.PUBLIC_API_URL.replace(/\/+$/, '');
+  }
+  return `http://127.0.0.1:${env.PORT || 5000}`;
+}
+
+export function normalizeEndpoint(endpoint?: string): string {
+  const base = getPublicApiUrl();
+  if (!endpoint || endpoint.trim() === '') {
+    return `${base}/api/research`;
+  }
+  let ep = endpoint.trim();
+  if (ep.startsWith('/')) {
+    return `${base}${ep}`;
+  }
+  if (ep.match(/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?/i)) {
+    const urlPath = ep.replace(/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?/i, '');
+    return `${base}${urlPath || '/api/research'}`;
+  }
+  return ep;
+}
 
 export const INITIAL_SERVICES: ServiceItem[] = [
   {
     _id: '60f766740a74b48f2a02a2c1',
     name: 'Research Core Ultra (Service C)',
     description: 'High-speed, top-tier research provider for battery technologies, EV systems, and materials science.',
-    endpoint: `${PORT}/api/research`,
+    endpoint: `${getPublicApiUrl()}/api/research`,
     category: 'research',
     pricePerRequest: 0.03, // $0.03 USDC
     currency: 'USDC',
@@ -27,7 +48,7 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     _id: '60f766740a74b48f2a02a2c2',
     name: 'DeepSearch Pro (Service A)',
     description: 'Comprehensive academic research engine with high reliability.',
-    endpoint: `${PORT}/api/research`,
+    endpoint: `${getPublicApiUrl()}/api/research`,
     category: 'research',
     pricePerRequest: 0.05, // $0.05 USDC
     currency: 'USDC',
@@ -44,7 +65,7 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     _id: '60f766740a74b48f2a02a2c3',
     name: 'QuickResearch Lite (Service B)',
     description: 'Economy research provider with moderate latency and acceptable accuracy.',
-    endpoint: `${PORT}/api/research`,
+    endpoint: `${getPublicApiUrl()}/api/research`,
     category: 'research',
     pricePerRequest: 0.02, // $0.02 USDC
     currency: 'USDC',
@@ -61,7 +82,7 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     _id: '60f766740a74b48f2a02a2c4',
     name: 'Unverified Shadow Data (Unsafe Service X)',
     description: 'High-risk external endpoint flagged for suspicious instruction patterns and low reputation.',
-    endpoint: `${PORT}/api/research`,
+    endpoint: `${getPublicApiUrl()}/api/research`,
     category: 'research',
     pricePerRequest: 0.80, // Exceeds budget limit
     currency: 'USDC',
@@ -100,11 +121,7 @@ export async function getAllServices(): Promise<ServiceItem[]> {
       const docs = await ServiceModel.find().lean();
       if (docs && docs.length > 0) {
         return docs.map((d: any) => {
-          let ep = d.endpoint || `${PORT}/api/research`;
-          if (!ep.endsWith('/api/research')) {
-            ep = `${PORT}/api/research`;
-          }
-          return { ...d, _id: d._id.toString(), endpoint: ep };
+          return { ...d, _id: d._id.toString(), endpoint: normalizeEndpoint(d.endpoint) };
         });
       }
     } catch (err) {
@@ -112,11 +129,7 @@ export async function getAllServices(): Promise<ServiceItem[]> {
     }
   }
   return inMemoryServices.map((d) => {
-    let ep = d.endpoint || `${PORT}/api/research`;
-    if (!ep.endsWith('/api/research')) {
-      ep = `${PORT}/api/research`;
-    }
-    return { ...d, endpoint: ep };
+    return { ...d, endpoint: normalizeEndpoint(d.endpoint) };
   });
 }
 
@@ -154,7 +167,7 @@ export async function registerNewService(serviceData: Partial<ServiceItem>): Pro
     name: serviceData.name || 'Custom Machine Service',
     companyName: serviceData.companyName || 'Registered Provider Labs',
     description: serviceData.description || 'Custom machine-payable API service registered with TRUSTX.',
-    endpoint: serviceData.endpoint || `${PORT}/api/research`,
+    endpoint: normalizeEndpoint(serviceData.endpoint),
     category: serviceData.category || 'research',
     pricePerRequest: typeof serviceData.pricePerRequest === 'number' ? serviceData.pricePerRequest : 0.03,
     currency: serviceData.currency || 'USDC',

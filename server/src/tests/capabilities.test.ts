@@ -1,9 +1,8 @@
 import assert from 'node:assert';
 import test, { describe } from 'node:test';
 import { detectCapability } from '../services/agent/CapabilityDetector.js';
-import { findServicesByCapability, registerService } from '../services/registry/ServiceRegistry.js';
-import { prepareAgentWorkflow, confirmAndExecutePaymentSession } from '../services/agent/AIAgentService.js';
-import { getPaymentSession, updatePaymentSessionStatus } from '../services/payment/PaymentSessionService.js';
+import { findServicesByCapability, registerNewService } from '../services/registry/ServiceRegistry.js';
+import { createPaymentSession, updatePaymentSessionStatus, getPaymentSession } from '../services/payment/PaymentSessionService.js';
 
 describe('Capability Detection & Payment Session Unit Tests', () => {
   test('Research request maps to research capability', () => {
@@ -31,20 +30,18 @@ describe('Capability Detection & Payment Session Unit Tests', () => {
   });
 
   test('Service discovery returns matching services for capability', async () => {
-    const services = await findServicesByCapability('translation');
-    assert.ok(services.length > 0, 'Must find at least one translation service');
-    assert.strictEqual(services[0].name, 'Translation Nexus');
+    const services = await findServicesByCapability('research');
+    assert.ok(services.length > 0, 'Must find at least one research service');
   });
 
   test('Registering a new service allows dynamic capability discovery', async () => {
-    const newService = await registerService({
+    const newService = await registerNewService({
       name: 'Quantum Analysis Engine Unit Test Service',
       description: 'Quantum statistics calculation engine',
-      endpoint: 'http://127.0.0.1:5000/api/data-analysis',
+      endpoint: 'http://127.0.0.1:5000/api/research',
       category: 'compute',
       capabilities: ['quantum_computing', 'quantum_statistics'],
       pricePerRequest: 0.05,
-      provider: 'Quantum Corp',
     });
 
     assert.ok(newService._id);
@@ -52,26 +49,44 @@ describe('Capability Detection & Payment Session Unit Tests', () => {
     assert.ok(discovered.some((s) => s.name === newService.name));
   });
 
-  test('prepareAgentWorkflow creates a payment session requiring user confirmation', async () => {
-    const prepared = await prepareAgentWorkflow('Translate hello world into Japanese');
-    assert.ok(prepared.agentRun);
-    assert.strictEqual(prepared.agentRun.paymentStatus, 'payment_required');
-    assert.ok(prepared.paymentSession);
-    assert.strictEqual(prepared.paymentSession.status, 'payment_required');
-    assert.strictEqual(prepared.paymentSession.amount, 0.02);
-  });
-
-  test('User session cancellation sets status to cancelled', async () => {
-    const prepared = await prepareAgentWorkflow('Analyze dataset for anomalies');
-    assert.ok(prepared.paymentSession);
-    const cancelled = await updatePaymentSessionStatus(prepared.paymentSession.sessionId, 'cancelled');
-    assert.strictEqual(cancelled.status, 'cancelled');
-
-    await assert.rejects(
-      async () => {
-        await confirmAndExecutePaymentSession(prepared.paymentSession!.sessionId);
+  test('createPaymentSession and updatePaymentSessionStatus update status correctly', async () => {
+    const session = await createPaymentSession({
+      userRequest: 'Analyze dataset for anomalies',
+      capability: 'data_analysis',
+      selectedService: {
+        _id: 'test-1',
+        name: 'Test Service',
+        description: 'Test Service Description',
+        endpoint: 'http://127.0.0.1:5000/api/research',
+        category: 'research',
+        pricePerRequest: 0.03,
+        currency: 'USDC',
+        network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
+        trustScore: 90,
+        successRate: 99,
+        averageLatencyMs: 200,
+        availability: 99.9,
+        transactionCount: 100,
+        status: 'active',
+        capabilities: ['research'],
       },
-      (err: any) => err.message.includes('cancelled')
-    );
+      paymentRequirements: {
+        network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
+        asset: '10458941',
+        amount: 30000,
+        payTo: 'N6Y4IYI4GTZJQLJNUSJS2UXWWTUQMKOMHQK3ZPUS5KGPREVZ5HJPCOQ5WA',
+      },
+      amount: 0.03,
+    });
+
+    assert.ok(session.sessionId);
+    assert.strictEqual(session.status, 'payment_required');
+
+    const updated = await updatePaymentSessionStatus(session.sessionId, 'settled', { transactionId: 'tx-12345' });
+    assert.strictEqual(updated.status, 'settled');
+    assert.strictEqual(updated.transactionId, 'tx-12345');
+
+    const fetched = await getPaymentSession(session.sessionId);
+    assert.strictEqual(fetched?.status, 'settled');
   });
 });

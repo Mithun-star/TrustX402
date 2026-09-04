@@ -20,5 +20,7 @@ services:
         value: N6Y4IYI4GTZJQLJNUSJS2UXWWTUQMKOMHQK3ZPUS5KGPREVZ5HJPCOQ5WA
       - key: PAYMENT_PAYER_ADDRESS
         value: N7RD4M5KFNDANIF4NICNW5SEFQBYMB2URW7GEGBQR5AVNCEOJ6WST3L4LY
+      - key: PUBLIC_API_URL
+        value: https://trustx402.onrender.com
       - key: AVM_MNEMONIC
         sync: false
