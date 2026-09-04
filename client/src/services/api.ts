@@ -1,16 +1,45 @@
-import { ServiceItem, ReputationResult, RiskResult, BudgetPolicy, RouterSelectionResult, AgentRun, TransactionRecord, SecurityEventRecord } from '@trustx/shared';
+import {
+  ServiceItem,
+  ReputationResult,
+  RiskResult,
+  BudgetPolicy,
+  RouterSelectionResult,
+  AgentRun,
+  TransactionRecord,
+  SecurityEventRecord,
+  PaymentSession,
+  ServiceRegistrationPayload,
+} from '@trustx/shared';
 
-const API_BASE = 'https://trustx402.onrender.com/api';
+const API_BASE = (import.meta as any).env?.VITE_API_BASE || '/api';
 
 export async function fetchHealth() {
   const res = await fetch(`${API_BASE}/health`);
   return res.json();
 }
 
-export async function fetchServices(): Promise<ServiceItem[]> {
-  const res = await fetch(`${API_BASE}/services`);
+export async function fetchServices(filters?: { capability?: string; category?: string }): Promise<ServiceItem[]> {
+  const queryParams = new URLSearchParams();
+  if (filters?.capability) queryParams.set('capability', filters.capability);
+  if (filters?.category) queryParams.set('category', filters.category);
+
+  const url = `${API_BASE}/services${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  const res = await fetch(url);
   const json = await res.json();
   return json.services || [];
+}
+
+export async function registerNewService(data: ServiceRegistrationPayload): Promise<ServiceItem> {
+  const res = await fetch(`${API_BASE}/services/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.error || 'Failed to register service.');
+  }
+  return json.service;
 }
 
 export async function fetchReputation(serviceId: string): Promise<ReputationResult> {
@@ -59,6 +88,52 @@ export async function selectRoute(weights?: any): Promise<RouterSelectionResult>
   });
   const json = await res.json();
   return json.result;
+}
+
+export async function prepareAgent(
+  userRequest: string,
+  targetServiceId?: string
+): Promise<{ agentRun: AgentRun; paymentSession?: PaymentSession }> {
+  const res = await fetch(`${API_BASE}/agent/prepare`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userRequest, targetServiceId }),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.error || 'Agent preparation failed');
+  }
+  return { agentRun: json.agentRun, paymentSession: json.paymentSession };
+}
+
+export async function confirmPayment(
+  paymentSessionId: string,
+  options: { signedPaymentPayload?: any; useBackendSigner?: boolean } = {}
+): Promise<{ success: boolean; transactionId: string; result: any; paymentSession: PaymentSession }> {
+  const res = await fetch(`${API_BASE}/payment/confirm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      paymentSessionId,
+      signedPaymentPayload: options.signedPaymentPayload,
+      useBackendSigner: options.useBackendSigner,
+    }),
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.error || 'Payment confirmation failed');
+  }
+  return json;
+}
+
+export async function cancelPayment(paymentSessionId: string): Promise<PaymentSession> {
+  const res = await fetch(`${API_BASE}/payment/cancel`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paymentSessionId }),
+  });
+  const json = await res.json();
+  return json.paymentSession;
 }
 
 export async function runAgent(userRequest: string, targetServiceId?: string): Promise<AgentRun> {

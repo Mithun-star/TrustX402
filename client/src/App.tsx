@@ -29,7 +29,7 @@ export const App: React.FC = () => {
         {activeTab === 'console' && (
           <AgentConsolePage initialPrompt={consolePrompt} initialTargetServiceId={consoleTargetServiceId} />
         )}
-        {activeTab === 'marketplace' && <MarketplacePage />}
+        {activeTab === 'marketplace' && <MarketplacePage onUseService={handleNavigateToConsole} />}
         {activeTab === 'security' && <SecurityPage />}
         {activeTab === 'budget' && <BudgetPage />}
         {activeTab === 'transactions' && <TransactionsPage />}

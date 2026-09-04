@@ -11,7 +11,7 @@ const ServiceSchema = new Schema<IServiceDocument>(
     category: {
       type: String,
       required: true,
-      enum: ['research', 'data', 'compute', 'storage', 'ai'],
+      enum: ['research', 'translation', 'data', 'compute', 'storage', 'ai', 'media', 'code', 'document'],
     },
     pricePerRequest: { type: Number, required: true },
     currency: { type: String, default: 'USDC' },
@@ -23,6 +23,11 @@ const ServiceSchema = new Schema<IServiceDocument>(
     transactionCount: { type: Number, default: 0 },
     status: { type: String, enum: ['active', 'degraded', 'offline'], default: 'active' },
     capabilities: [{ type: String }],
+    provider: { type: String, default: 'TRUSTX Demo Network' },
+    paymentProtocol: { type: String, default: 'x402' },
+    paymentAsset: { type: String, default: 'USDC ASA (10458941)' },
+    requiresPayment: { type: Boolean, default: true },
+    metadata: { type: Schema.Types.Mixed },
   },
   { timestamps: true }
 );
