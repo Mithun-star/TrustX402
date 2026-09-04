@@ -60,7 +60,7 @@ export const AgentConsolePage: React.FC<AgentConsolePageProps> = ({
       }
     } catch (err: any) {
       setErrorMsg(err.message || 'Workflow execution failed');
-    } fontFinally: {
+    } finally {
       setRunning(false);
     }
   };
