@@ -1,19 +1,18 @@
 import mongoose from 'mongoose';
 import { ServiceModel } from '../../models/Service.js';
-import { ServiceItem, ServiceRegistrationPayload } from '@trustx/shared';
+import { ServiceItem } from '@trustx/shared';
 import { env } from '../../config/env.js';
 
-const PORT = env.PORT || 5000;
-const BASE_URL = `http://127.0.0.1:${PORT}`;
+const PORT = env.PUBLIC_API_URL;
 
 export const INITIAL_SERVICES: ServiceItem[] = [
   {
     _id: '60f766740a74b48f2a02a2c1',
-    name: 'Research Core Ultra',
-    description: 'High-speed, top-tier research provider for EV battery technologies, materials science, and clean energy.',
-    endpoint: `${BASE_URL}/api/research`,
+    name: 'Research Core Ultra (Service C)',
+    description: 'High-speed, top-tier research provider for battery technologies, EV systems, and materials science.',
+    endpoint: `${PORT}/api/research`,
     category: 'research',
-    pricePerRequest: 0.03,
+    pricePerRequest: 0.03, // $0.03 USDC
     currency: 'USDC',
     network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
     trustScore: 97,
@@ -22,19 +21,15 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     availability: 99.9,
     transactionCount: 1842,
     status: 'active',
-    capabilities: ['research', 'ev_battery_research', 'materials_science', 'market_intelligence', 'academic_search'],
-    provider: 'TRUSTX Core Labs',
-    paymentProtocol: 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
+    capabilities: ['ev_battery_research', 'materials_science', 'market_intelligence'],
   },
   {
     _id: '60f766740a74b48f2a02a2c2',
-    name: 'DeepSearch Pro',
-    description: 'Comprehensive academic research engine with patent search and deep literature synthesis.',
-    endpoint: `${BASE_URL}/api/research`,
+    name: 'DeepSearch Pro (Service A)',
+    description: 'Comprehensive academic research engine with high reliability.',
+    endpoint: `${PORT}/api/research`,
     category: 'research',
-    pricePerRequest: 0.05,
+    pricePerRequest: 0.05, // $0.05 USDC
     currency: 'USDC',
     network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
     trustScore: 94,
@@ -43,19 +38,15 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     availability: 98.5,
     transactionCount: 920,
     status: 'active',
-    capabilities: ['research', 'patent_analysis', 'academic_search', 'summarization'],
-    provider: 'DeepSearch Systems',
-    paymentProtocol: 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
+    capabilities: ['ev_battery_research', 'patent_analysis'],
   },
   {
     _id: '60f766740a74b48f2a02a2c3',
-    name: 'QuickResearch Lite',
-    description: 'Economy research provider for rapid informational overviews and web data extraction.',
-    endpoint: `${BASE_URL}/api/research`,
+    name: 'QuickResearch Lite (Service B)',
+    description: 'Economy research provider with moderate latency and acceptable accuracy.',
+    endpoint: `${PORT}/api/research`,
     category: 'research',
-    pricePerRequest: 0.02,
+    pricePerRequest: 0.02, // $0.02 USDC
     currency: 'USDC',
     network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
     trustScore: 72,
@@ -64,166 +55,15 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     availability: 91.0,
     transactionCount: 410,
     status: 'active',
-    capabilities: ['research', 'web_scraping', 'summarization'],
-    provider: 'QuickResearch Inc',
-    paymentProtocol: 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
-  },
-  {
-    _id: '60f766740a74b48f2a02a2c5',
-    name: 'Translation Nexus',
-    description: 'Neural multi-lingual translation service supporting 100+ global languages with context preservation.',
-    endpoint: `${BASE_URL}/api/translate`,
-    category: 'translation',
-    pricePerRequest: 0.02,
-    currency: 'USDC',
-    network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
-    trustScore: 95,
-    successRate: 98.9,
-    averageLatencyMs: 180,
-    availability: 99.7,
-    transactionCount: 2310,
-    status: 'active',
-    capabilities: ['translation', 'language_processing', 'localization'],
-    provider: 'LingoNexus AI',
-    paymentProtocol: 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
-  },
-  {
-    _id: '60f766740a74b48f2a02a2c6',
-    name: 'DataInsight Engine',
-    description: 'Autonomous CSV & dataset analytics engine for statistical distribution and anomaly detection.',
-    endpoint: `${BASE_URL}/api/data-analysis`,
-    category: 'data',
-    pricePerRequest: 0.04,
-    currency: 'USDC',
-    network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
-    trustScore: 96,
-    successRate: 99.1,
-    averageLatencyMs: 340,
-    availability: 99.5,
-    transactionCount: 1540,
-    status: 'active',
-    capabilities: ['data_analysis', 'statistics', 'csv_analysis', 'computation'],
-    provider: 'DataInsight Labs',
-    paymentProtocol: 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
-  },
-  {
-    _id: '60f766740a74b48f2a02a2c7',
-    name: 'VisionForge',
-    description: 'Generative AI visual studio capable of rendering high-definition futuristic concepts and artwork.',
-    endpoint: `${BASE_URL}/api/image-generation`,
-    category: 'media',
-    pricePerRequest: 0.08,
-    currency: 'USDC',
-    network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
-    trustScore: 98,
-    successRate: 99.8,
-    averageLatencyMs: 1200,
-    availability: 99.8,
-    transactionCount: 3100,
-    status: 'active',
-    capabilities: ['image_generation', 'media_creation', 'render'],
-    provider: 'VisionForge Studios',
-    paymentProtocol: 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
-  },
-  {
-    _id: '60f766740a74b48f2a02a2c8',
-    name: 'SummarizeAI',
-    description: 'High-speed document summarizer producing executive bullet points and key takeaways.',
-    endpoint: `${BASE_URL}/api/summarize`,
-    category: 'ai',
-    pricePerRequest: 0.01,
-    currency: 'USDC',
-    network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
-    trustScore: 93,
-    successRate: 96.5,
-    averageLatencyMs: 150,
-    availability: 99.0,
-    transactionCount: 4200,
-    status: 'active',
-    capabilities: ['summarization', 'text_processing'],
-    provider: 'Summarize Labs',
-    paymentProtocol: 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
-  },
-  {
-    _id: '60f766740a74b48f2a02a2c9',
-    name: 'CodeAudit Service',
-    description: 'Automated static analysis and security vulnerability detector for smart contracts and web apps.',
-    endpoint: `${BASE_URL}/api/code-analysis`,
-    category: 'code',
-    pricePerRequest: 0.05,
-    currency: 'USDC',
-    network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
-    trustScore: 92,
-    successRate: 95.0,
-    averageLatencyMs: 450,
-    availability: 98.0,
-    transactionCount: 880,
-    status: 'active',
-    capabilities: ['code_analysis', 'security_audit', 'vulnerability_scan'],
-    provider: 'SecCode Security',
-    paymentProtocol: 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
-  },
-  {
-    _id: '60f766740a74b48f2a02a2ca',
-    name: 'DocumentFlow Converter',
-    description: 'Universal document format conversion engine for PDF, DOCX, Markdown, and HTML.',
-    endpoint: `${BASE_URL}/api/document-conversion`,
-    category: 'document',
-    pricePerRequest: 0.02,
-    currency: 'USDC',
-    network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
-    trustScore: 91,
-    successRate: 94.2,
-    averageLatencyMs: 220,
-    availability: 97.5,
-    transactionCount: 650,
-    status: 'active',
-    capabilities: ['document_conversion', 'pdf_processing'],
-    provider: 'DocFlow Technologies',
-    paymentProtocol: 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
-  },
-  {
-    _id: '60f766740a74b48f2a02a2cb',
-    name: 'Sentiment Analytics API',
-    description: 'Customer review sentiment analyzer quantifying mood, tone, and feedback categorization.',
-    endpoint: `${BASE_URL}/api/sentiment`,
-    category: 'data',
-    pricePerRequest: 0.02,
-    currency: 'USDC',
-    network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
-    trustScore: 94,
-    successRate: 97.5,
-    averageLatencyMs: 190,
-    availability: 99.2,
-    transactionCount: 1720,
-    status: 'active',
-    capabilities: ['sentiment_analysis', 'customer_feedback', 'text_processing'],
-    provider: 'Sentiment Metrics',
-    paymentProtocol: 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
+    capabilities: ['ev_battery_research', 'web_scraping'],
   },
   {
     _id: '60f766740a74b48f2a02a2c4',
     name: 'Unverified Shadow Data (Unsafe Service X)',
     description: 'High-risk external endpoint flagged for suspicious instruction patterns and low reputation.',
-    endpoint: `${BASE_URL}/api/research`,
+    endpoint: `${PORT}/api/research`,
     category: 'research',
-    pricePerRequest: 0.80,
+    pricePerRequest: 0.80, // Exceeds budget limit
     currency: 'USDC',
     network: 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
     trustScore: 31,
@@ -232,11 +72,7 @@ export const INITIAL_SERVICES: ServiceItem[] = [
     availability: 65.0,
     transactionCount: 14,
     status: 'degraded',
-    capabilities: ['research', 'unverified_data'],
-    provider: 'Unknown Shadow Entity',
-    paymentProtocol: 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
+    capabilities: ['ev_battery_research', 'unverified_data'],
   },
 ];
 
@@ -246,15 +82,13 @@ export async function seedServiceRegistry(): Promise<void> {
   if (mongoose.connection.readyState === 1) {
     try {
       const count = await ServiceModel.countDocuments();
-      if (count < INITIAL_SERVICES.length) {
-        console.log('🌱 Syncing Service Registry with initial services in MongoDB...');
-        for (const s of INITIAL_SERVICES) {
-          await ServiceModel.updateOne({ _id: s._id }, { $set: s }, { upsert: true });
-        }
-        console.log('✅ Service Registry synced successfully.');
+      if (count === 0) {
+        console.log('🌱 Seeding Service Registry with initial services in MongoDB...');
+        await ServiceModel.insertMany(INITIAL_SERVICES);
+        console.log('✅ Service Registry seeded successfully.');
       }
     } catch (e: any) {
-      console.warn('⚠️ Service seeding fallback in-memory store:', e.message);
+      console.warn('⚠️ Service seeding using fallback in-memory store:', e.message);
     }
   }
 }
@@ -265,80 +99,91 @@ export async function getAllServices(): Promise<ServiceItem[]> {
     try {
       const docs = await ServiceModel.find().lean();
       if (docs && docs.length > 0) {
-        return docs.map((d: any) => ({ ...d, _id: d._id.toString() }));
+        return docs.map((d: any) => {
+          let ep = d.endpoint || `${PORT}/api/research`;
+          if (!ep.endsWith('/api/research')) {
+            ep = `${PORT}/api/research`;
+          }
+          return { ...d, _id: d._id.toString(), endpoint: ep };
+        });
       }
     } catch (err) {
       // Fallback
     }
   }
-  return inMemoryServices;
+  return inMemoryServices.map((d) => {
+    let ep = d.endpoint || `${PORT}/api/research`;
+    if (!ep.endsWith('/api/research')) {
+      ep = `${PORT}/api/research`;
+    }
+    return { ...d, endpoint: ep };
+  });
 }
 
 export async function getServiceById(id: string): Promise<ServiceItem | null> {
   const all = await getAllServices();
-  return all.find((s) => s._id === id || s.name.toLowerCase().includes(id.toLowerCase())) || null;
+  return all.find((s) => s._id === id || s.name.includes(id)) || null;
 }
 
 export async function findServicesByCapability(capability: string): Promise<ServiceItem[]> {
   const all = await getAllServices();
-  const capNormalized = capability.toLowerCase().trim();
+  const capLower = capability.toLowerCase().trim();
+  const keywords = capLower.split(/[\s,_\-+]+/);
 
-  return all.filter((s) => {
+  const matched = all.filter((s) => {
     if (s.status === 'offline') return false;
-    if (s.category.toLowerCase() === capNormalized) return true;
-    return s.capabilities.some((c) => {
-      const target = c.toLowerCase();
-      return target === capNormalized || target.includes(capNormalized) || capNormalized.includes(target);
-    });
+    const catMatch = s.category.toLowerCase().includes(capLower);
+    const capMatch = s.capabilities.some((c) =>
+      keywords.some((kw) => c.toLowerCase().includes(kw) || kw.includes(c.toLowerCase()))
+    );
+    const nameMatch = keywords.some((kw) => s.name.toLowerCase().includes(kw));
+    const descMatch = keywords.some((kw) => s.description.toLowerCase().includes(kw));
+    return catMatch || capMatch || nameMatch || descMatch;
   });
+
+  if (matched.length > 0) return matched;
+
+  // Fallback: If no exact capability match, return all active services for multi-attribute router evaluation
+  return all.filter((s) => s.status !== 'offline');
 }
 
-export async function findServicesByCategory(category: string): Promise<ServiceItem[]> {
-  const all = await getAllServices();
-  return all.filter((s) => s.status !== 'offline' && s.category.toLowerCase() === category.toLowerCase());
-}
-
-export async function registerService(payload: ServiceRegistrationPayload): Promise<ServiceItem> {
-  if (!payload.name || !payload.endpoint || !payload.capabilities || payload.capabilities.length === 0) {
-    throw new Error('Service registration requires name, endpoint, and at least one capability.');
-  }
-
-  if (payload.pricePerRequest === undefined || payload.pricePerRequest < 0) {
-    throw new Error('Valid pricePerRequest is required.');
-  }
-
+export async function registerNewService(serviceData: Partial<ServiceItem>): Promise<ServiceItem> {
+  const initialScore = serviceData.initialTrustScore ?? serviceData.trustScore ?? 85;
   const newService: ServiceItem = {
-    _id: new mongoose.Types.ObjectId().toString(),
-    name: payload.name.trim(),
-    description: payload.description || 'Machine-payable service registered via TRUSTX API.',
-    endpoint: payload.endpoint.trim(),
-    category: payload.category || 'ai',
-    pricePerRequest: payload.pricePerRequest,
-    currency: payload.currency || 'USDC',
-    network: payload.network || 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
-    trustScore: 85,
-    successRate: 98.0,
-    averageLatencyMs: 250,
-    availability: 99.0,
-    transactionCount: 0,
-    status: 'active',
-    capabilities: payload.capabilities.map((c) => c.toLowerCase().trim()),
-    provider: payload.provider || 'Registered Third-Party Provider',
-    paymentProtocol: payload.paymentProtocol || 'x402',
-    paymentAsset: '10458941',
-    requiresPayment: true,
+    _id: serviceData._id || `service-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    name: serviceData.name || 'Custom Machine Service',
+    companyName: serviceData.companyName || 'Registered Provider Labs',
+    description: serviceData.description || 'Custom machine-payable API service registered with TRUSTX.',
+    endpoint: serviceData.endpoint || `${PORT}/api/research`,
+    category: serviceData.category || 'research',
+    pricePerRequest: typeof serviceData.pricePerRequest === 'number' ? serviceData.pricePerRequest : 0.03,
+    currency: serviceData.currency || 'USDC',
+    network: serviceData.network || 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
+    trustScore: initialScore,
+    initialTrustScore: initialScore,
+    successRate: typeof serviceData.successRate === 'number' ? serviceData.successRate : 97.0,
+    averageLatencyMs: typeof serviceData.averageLatencyMs === 'number' ? serviceData.averageLatencyMs : 300,
+    availability: typeof serviceData.availability === 'number' ? serviceData.availability : 99.0,
+    transactionCount: typeof serviceData.transactionCount === 'number' ? serviceData.transactionCount : 1,
+    status: serviceData.status || 'active',
+    capabilities: Array.isArray(serviceData.capabilities) && serviceData.capabilities.length > 0
+      ? serviceData.capabilities
+      : [serviceData.category || 'research'],
   };
-
-  inMemoryServices.push(newService);
 
   if (mongoose.connection.readyState === 1) {
     try {
-      const doc = new ServiceModel(newService);
-      await doc.save();
-    } catch (err: any) {
-      console.warn('⚠️ Saved registered service to in-memory store:', err.message);
+      const { _id, ...docData } = newService;
+      const doc = new ServiceModel(docData);
+      const saved = await doc.save();
+      const formatted: ServiceItem = { ...saved.toObject(), _id: saved._id.toString() };
+      inMemoryServices.unshift(formatted);
+      return formatted;
+    } catch (e: any) {
+      console.warn('⚠️ Could not save service to MongoDB, using in-memory store:', e.message);
     }
   }
 
+  inMemoryServices.unshift(newService);
   return newService;
 }

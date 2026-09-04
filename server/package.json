@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/app.js",
   "scripts": {
-    "build": "tsc",
+    "build": "node -e \"import fs from 'fs'; if(fs.existsSync('dist')) fs.rmSync('dist', {recursive: true, force: true});\" && tsc",
     "dev": "cross-env AUTO_START=true tsx watch src/app.ts",
     "start": "cross-env AUTO_START=true node dist/app.js",
     "test": "node --test dist/tests/**/*.test.js",

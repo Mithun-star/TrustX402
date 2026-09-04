@@ -6,7 +6,7 @@ export const DEFAULT_BUDGET_POLICY: BudgetPolicy = {
   spentToday: 0.05, // $0.05 spent
   maxPerTransaction: 0.10, // $0.10 max per tx
   minimumTrustScore: 50,
-  allowedCategories: ['research', 'translation', 'data', 'compute', 'storage', 'ai', 'media', 'code', 'document'],
+  allowedCategories: ['research', 'data', 'compute', 'ai', 'weather', 'coding', 'architecture', 'cybersecurity', 'market-intelligence'],
 };
 
 let currentPolicy: BudgetPolicy = { ...DEFAULT_BUDGET_POLICY };

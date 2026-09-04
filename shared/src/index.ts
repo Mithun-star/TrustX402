@@ -1,46 +1,23 @@
 export interface ServiceItem {
   _id: string;
   name: string;
+  companyName?: string;
   description: string;
   endpoint: string;
-  category: 'research' | 'translation' | 'data' | 'compute' | 'storage' | 'ai' | 'media' | 'code' | 'document';
+  category: 'research' | 'data' | 'compute' | 'storage' | 'ai' | string;
   pricePerRequest: number; // in USD / USDC
   currency: string;
   network: string;
   trustScore: number;
+  initialTrustScore?: number;
   successRate: number;
   averageLatencyMs: number;
   availability: number;
   transactionCount: number;
   status: 'active' | 'degraded' | 'offline';
   capabilities: string[];
-  provider?: string;
-  paymentProtocol?: string;
-  paymentAsset?: string;
-  requiresPayment?: boolean;
-  metadata?: Record<string, any>;
   createdAt?: string;
   updatedAt?: string;
-}
-
-export interface CapabilityDetectionResult {
-  capability: string;
-  confidence: number;
-  reason: string;
-  keywordsMatched?: string[];
-}
-
-export interface ServiceRegistrationPayload {
-  name: string;
-  description: string;
-  endpoint: string;
-  category: ServiceItem['category'];
-  capabilities: string[];
-  pricePerRequest: number;
-  currency?: string;
-  network?: string;
-  provider?: string;
-  paymentProtocol?: string;
 }
 
 export interface ReputationResult {
@@ -119,68 +96,23 @@ export interface AgentRunStep {
   stepIndex: number;
   title: string;
   description: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'waiting_approval';
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
   timestamp: string;
   data?: any;
-}
-
-export type PaymentStatus =
-  | 'none'
-  | 'preparing'
-  | 'payment_required'
-  | 'awaiting_user_approval'
-  | 'signing'
-  | 'verifying'
-  | 'settling'
-  | 'settled'
-  | 'cancelled'
-  | 'failed'
-  | 'blocked';
-
-export interface PaymentRequirements {
-  scheme: string;
-  network: string;
-  amount: string;
-  asset: string;
-  payTo: string;
-  extra?: {
-    feePayer?: string;
-  };
-}
-
-export interface PaymentSession {
-  sessionId: string;
-  agentRunId?: string;
-  userRequest: string;
-  capability: string;
-  selectedService: ServiceItem;
-  paymentRequirements: PaymentRequirements;
-  amount: number;
-  currency: string;
-  network: string;
-  riskResult?: RiskResult;
-  budgetCheck?: BudgetCheckResult;
-  reputationReport?: ReputationResult;
-  status: PaymentStatus;
-  createdAt: string;
-  expiresAt: string;
-  result?: any;
-  transactionId?: string;
 }
 
 export interface AgentRun {
   _id: string;
   agentId: string;
   userRequest: string;
-  capability?: string;
   steps: AgentRunStep[];
   selectedService?: Partial<ServiceItem>;
-  paymentStatus: PaymentStatus;
-  paymentSessionId?: string;
+  paymentStatus: 'none' | 'pending' | 'signed' | 'settled' | 'blocked' | 'failed';
   result?: any;
   transactionId?: string;
   startedAt: string;
   completedAt?: string;
+  conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
 }
 
 export interface TransactionRecord {
@@ -230,5 +162,5 @@ export interface ResearchApiResponse {
     keyFindings: string[];
     sources: string[];
   };
-  payment?: X402PaymentResult;
+  payment: X402PaymentResult;
 }
